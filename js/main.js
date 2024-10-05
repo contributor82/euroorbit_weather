@@ -3,9 +3,9 @@
 function loadCities() {
     var $citySelect = $("#citySelect");
     $.ajax({
-        type: "GET",
-        url: "city_coordinates.csv",
-        dataType: "text",
+        type: API_VERBS.GET,
+        url: API_URL.GET_CITY_COORDINATES,
+        dataType: API_RETURN_DATA_TYPE.TEXT,
         success: (lines) => {
             var rows = lines.split('\n');
             for (var i = 1; i < rows.length; i++) {
@@ -14,6 +14,9 @@ function loadCities() {
                 var cityCountryText = cols[2] + ", " + cols[3];
                 $citySelect.append("<option value = " + optionValue + " >" + cityCountryText + "</option>");
             }
+        },
+        error: () => {
+            alert(ERROR_MESSAGES.LOADING_CITIES_ERROR);
         }
     });
 }
@@ -37,13 +40,14 @@ function loadCityWeatherForecast() {
     }
 
     var cityCoordinates = JSON.parse(selectedCityValue);
-    var externalUrl = 'https://www.7timer.info/bin/civillight.php?lon=' + cityCoordinates.lon + '&lat=' + cityCoordinates.lat + '&ac=0&unit=metric&output=json&tzshift=0';
+
+    var externalUrl = API_URL.GET_CITY_WEATHER_FORECAST + 'lon=' + cityCoordinates.lon + '&lat=' + cityCoordinates.lat + '&ac=0&unit=metric&output=json&tzshift=0';
 
     // Get call to an external API
     $.ajax({
-        type: 'GET',
+        type: API_VERBS.GET,
         url: externalUrl,
-        dataType: 'text',
+        dataType: API_RETURN_DATA_TYPE.TEXT,
         success: (response) => {
             var weatherData = JSON.parse(response);
             if (weatherData != null) {
@@ -72,6 +76,10 @@ function loadCityWeatherForecast() {
                         "</div>");
                 }
             }
+        },
+        error: () => {
+            $resultsHeading.find('div').remove().end();
+            alert(ERROR_MESSAGES.LOADING_WEATHER_FORECAST_ERROR);
         }
     });
 }
